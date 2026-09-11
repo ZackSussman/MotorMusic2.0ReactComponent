@@ -253,14 +253,14 @@ function MotorMusicEditor({
                                       }
                                   })
                         }}
-
+                        beforeMount={registerLanguageAndTheme}
                         onMount={(editor, monaco) => {
                             editorRef.current = editor;
                             monacoRef.current = monaco;
 
                             // Register the language, token provider, and theme
                             // using the exact Monaco instance used by this editor.
-                            registerLanguageAndTheme(monaco);
+                            //registerLanguageAndTheme(monaco);
 
                             // Make sure the existing model uses the newly
                             // registered MotorMusic language.
