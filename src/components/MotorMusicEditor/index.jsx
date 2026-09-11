@@ -3,7 +3,7 @@ import MonacoEditor, {loader} from "@monaco-editor/react";
 import {MotorMusicTokensProvider, processVisual} from "motormusic-runtime";
 import {FaPlay} from 'react-icons/fa';
 
-const DEFAULT_CODE = `[MotorMusic -> [<"Motormusic" "MM> -> MotorMusic]]`;
+const DEFAULT_CODE = `[MotorMusic -> [<"<Motormusic>" "<MM>"> -> MotorMusic]]`;
 
 const EDITOR_BACKGROUND_COLOR = "#171617";
 
@@ -13,7 +13,7 @@ function registerLanguageAndTheme(monaco) {
       return;
     }
     monaco.languages.register({id: "MotorMusic"});
-    //monaco.languages.setTokensProvider('MotorMusic', new MotorMusicTokensProvider());
+    monaco.languages.setTokensProvider('MotorMusic', new MotorMusicTokensProvider());
     
     monaco.editor.defineTheme('MotorMusicTheme', {
     base: 'vs',
