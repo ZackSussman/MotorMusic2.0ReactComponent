@@ -52,8 +52,10 @@ function registerLanguageAndTheme(monaco) {
       { token: 'lsqbracket.MotorMusic', foreground: '#b3ff00' },
       { token: 'rsqbracket.MotorMusic', foreground: '#b3ff00' },
       { token: 'unrecognized.MotorMusic', foreground: '#ff005d' },
-      { token: 'langle.MotorMusic', foreground: '#8080B0' },
-      { token: 'rangle.MotorMusic', foreground: '#8080B0' },
+      { token: 'langle.MotorMusic', foreground: '#79b5fe' },
+      { token: 'rangle.MotorMusic', foreground: '#79b5fe' },
+      { token: 'quote.MotorMusic', foreground: '#b45bf8'},
+      { token: 'rightarrow.MotorMusic', foreground: '#b3ff00'}
       { token: '', foreground: '#ef0e0e' } 
     ]
   });
