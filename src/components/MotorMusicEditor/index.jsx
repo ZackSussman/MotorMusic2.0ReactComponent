@@ -84,6 +84,8 @@ function registerLanguageAndTheme(monaco) {
         ]
     });
 
+    monaco.editor.setTheme("MotorMusicTheme");
+
     monaco.languages.setLanguageConfiguration("MotorMusic", {
         autoClosingPairs: [
             {
