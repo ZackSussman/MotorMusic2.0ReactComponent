@@ -1,22 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
 import MonacoEditor, {loader} from "@monaco-editor/react";
-import {initializeMotorMusicRuntime, DEFAULT_SYLLABLE_TIME} from  "motormusic-runtime";
-import {MotorMusicTokensProvider} from "motormusic-runtime";
+import {MotorMusicTokensProvider, processVisual} from "motormusic-runtime";
 import {FaPlay} from 'react-icons/fa';
 
-const DEFAULT_CODE = `(
-    (
-        ((twin ^ kl) (twin ^ kl) (li ^ tle) . 2star )
-        ((how ^ i)  (won ^ der)  (what ^ you) . 2arr )
-        ((up ^ a) (bovv ^ the)  (world ^ so) . 2hii )
-      ^
-        ((liek ^ a) (dia ^ mond) (in ^ the) . 2skyy )
-    )
-    (twin kle twin kle li tl . 2star )
-    how i won der what you 
-.
-    6arr
-)`;
+const DEFAULT_CODE = `[MotorMusic -> [<"Motormusic" "MM> -> MotorMusic]]`;
 
 const EDITOR_BACKGROUND_COLOR = "#171617";
 
@@ -52,26 +39,18 @@ function registerLanguageAndTheme(monaco) {
       { token: 'rparen2.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
       { token: 'lparen0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
       { token: 'rparen0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
-      { token: 'lcurly0.MotorMusic', foreground: '#1ca182' },
-      { token: 'lcurly1.MotorMusic', foreground: '#6b90ff' },
-      { token: 'lcurly2.MotorMusic', foreground: '#fe00ff' },
-      { token: 'rcurly0.MotorMusic', foreground: '#1ca182' },
-      { token: 'rcurly1.MotorMusic', foreground: '6b90ff' },
-      { token: 'rcurly2.MotorMusic', foreground: '#fe00ff' },
-      { token: 'number.MotorMusic', foreground: '#0075ff' },
-      { token: 'syllable.MotorMusic', foreground: '#0075ff' },
-      { token: 'underscore.MotorMusic', foreground: '#0075ff' },
-      { token: 'unrecognized.MotorMusic', foreground: '#0075ff' },
+      { token: 'lcurly0.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'lcurly1.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
+      { token: 'lcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'rcurly0.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'rcurly1.MotorMusic', foreground: '6b90ff', fontStyle: 'bold' },
+      { token: 'rcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'named_symbol.MotorMusic', foreground: '#0075ff' },
+      { token: 'lsqbracket.MotorMusic', foreground: '#b3ff00' },
+      { token: 'rsqbracket.MotorMusic', foreground: '#b3ff00' },
+      { token: 'unrecognized.MotorMusic', foreground: '#ff005d' },
       { token: 'langle.MotorMusic', foreground: '#8080B0' },
       { token: 'rangle.MotorMusic', foreground: '#8080B0' },
-      { token: 'dotp1.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
-      { token: 'dotp2.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
-      { token: 'dotp0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
-      { token: 'overlinep1.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
-      { token: 'overlinep2.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
-      { token: 'overlinep0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
-      { token: 'pitchSpecification.MotorMusic', foreground: '#ffffff', fontStyle: 'bold'},
-      { token: 'pitchSpecificationValue.MotorMusic', foreground: '#ffffff', fontStyle: 'bold' },
       { token: '', foreground: '#0075ff' } 
     ]
   });
@@ -89,20 +68,14 @@ function registerLanguageAndTheme(monaco) {
 
 //width used to default to 600px
 
-function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAULT_CODE, onCodeChange = (newCode) => {},  lineNumbers = "on", disableDSTPMInput = false, initialSyllableTime = DEFAULT_SYLLABLE_TIME, onSyllableTimeChange = (newTime) => {}, audioData, setClientPlaybackState = () => {}, playButtonScale = 1}) {
+function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAULT_CODE, onCodeChange = (newCode) => {},  lineNumbers = "on"}) {
 
     const editorRef = useRef(null);
     const currentColorMap = useRef(); //TODO: understand why there is no null here (any difference?)
-    const runtimeComputedAudio = useRef(null);
-    const fullUploadedAudio = useRef(null);
     const [code, setCode] = useState(initialCode);
-    const [syllableTime, setSyllableTime] = useState(initialSyllableTime);
     const [isCurrentCodeCompiled, setIsCurrentCodeCompiled] = useState(false);
-    const [areWeCurrentlyPlayingBack, setAreWeCurrentlyPlayingBack] = useState(false);
     const [isEditorReady, setIsEditorReady] = useState(false);
     const [hasHorizontalOverflow, setHasHorizontalOverflow] = useState(false);
-
-     const mmRuntime = useRef(initializeMotorMusicRuntime(() => {setAreWeCurrentlyPlayingBack(true); setClientPlaybackState(true);}, () => {setAreWeCurrentlyPlayingBack(false); setClientPlaybackState(false);}));
 
 
     useEffect(() => {
@@ -111,141 +84,22 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
         }).catch(error => {
           console.log("failed to initialize monaco: ", error);
         });
-        mmRuntime.current.audioRuntime.initializeAudioContext();
-        mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
      }, []);
 
 
 
-    useEffect(() => {
-        console.log("syllableTime changed: ", syllableTime);
-        onSyllableTimeChange(syllableTime);
-        if (isEditorReady) {
-            mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
-            consumeText(code);
-        }
-    }, [syllableTime, isEditorReady]);
-
-    useEffect(() => {
-        if (audioData === undefined) {
-            // No change needed when audioData is undefined initially
-            return;
-        }
-        
-        if (audioData === null) {
-            // Audio was removed, revert to default computed audio
-            if (runtimeComputedAudio.current) {
-                mmRuntime.current.audioRuntime.setComputedAudio(runtimeComputedAudio.current);
-            }
-        } else {
-            // Audio was uploaded, process it
-            processAudioData(audioData);
-        }
-    }, [audioData]);
-
-    async function processAudioData(audioData) {
-        try {
-            // Convert data URL to ArrayBuffer
-            const response = await fetch(audioData.dataUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            
-            // Create audio context for decoding
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            
-            // Convert to the required format: [[left1, right1], [left2, right2], ...]
-            const sampleRate = audioBuffer.sampleRate;
-            const length = audioBuffer.length;
-            const numberOfChannels = audioBuffer.numberOfChannels;
-            
-            // Get channel data
-            const leftChannel = audioBuffer.getChannelData(0);
-            const rightChannel = numberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
-            
-            // Convert to stereo interleaved format
-            const stereoSamples = [];
-            for (let i = 0; i < length; i++) {
-                stereoSamples.push([leftChannel[i], rightChannel[i]]);
-            }
-            
-            // Buffer into chunks of 128 samples
-            const chunkedSamples = [];
-            for (let i = 0; i < stereoSamples.length; i += 128) {
-                const chunk = stereoSamples.slice(i, i + 128);
-                chunkedSamples.push(chunk);
-            }
-            
-            // Store the full uploaded audio for later re-cropping
-            fullUploadedAudio.current = chunkedSamples;
-
-            // Log warning if sample rate is not 48000 (assumed by MotorMusic runtime)
-            if (sampleRate !== 48000) {
-                console.warn(`Audio sample rate is ${sampleRate}Hz, but MotorMusic runtime assumes 48000Hz. This may cause timing issues.`);
-            }
-            
-            // Crop and set the audio if we have computed audio to match against
-            cropAndSetUploadedAudio();
-            
-        } catch (error) {
-            console.error("Error processing audio data:", error);
-        }
-    }
-
-    function cropAndSetUploadedAudio() {
-        if (!runtimeComputedAudio.current) {
-          console.warn("No uploaded audio data available to crop. Why were we even called lol");
-          return;
-        }
-        
     
-        const targetLength = runtimeComputedAudio.current.length;
-        let croppedSamples = fullUploadedAudio.current;
-        
-        /*
-        if (targetLength <= croppedSamples.length)
-          croppedSamples = croppedSamples.slice(0, targetLength);
-        */
-        
-        // Log info about cropping if needed
-        if (runtimeComputedAudio.current.length > targetLength) {
-            console.log(`Cropped uploaded audio from ${runtimeComputedAudio.current.length} buffers to ${targetLength} buffers to match computed audio length.`);
-        }
-        
-        // Set the cropped audio in the runtime
-        mmRuntime.current.audioRuntime.setComputedAudio(croppedSamples);
-    }
-    
-    function updateAudio() {
-      const [computedAudio, errors] = mmRuntime.current.globalRuntime.processAudio(code);
-      if (errors.length === 0 && computedAudio) {
-          if (audioData === undefined || audioData === null) {
-            mmRuntime.current.audioRuntime.setComputedAudio(computedAudio);
-            runtimeComputedAudio.current = computedAudio
-          }
-          else {
-             // Re-crop uploaded audio to match the new computed audio length
-             cropAndSetUploadedAudio();
-          }
-
-      }
-
-    }
-
     function consumeText(newCode) {
         onCodeChange(newCode); //client's callback
         setCode(newCode);
-        const [colorMap, getAnimationInfoFunction, errors] = mmRuntime.current.globalRuntime.processVisual(newCode);
-        if (errors.length === 0 && getAnimationInfoFunction && colorMap) {
-            mmRuntime.current.animationRuntime.setGetAnimationInfoFunction(getAnimationInfoFunction);
-            mmRuntime.current.animationRuntime.repaintColors(editorRef.current, document, colorMap);
-            currentColorMap.current = colorMap;
+        const errors = processVisual(newCode);
+        if (errors.length === 0) {
             setIsCurrentCodeCompiled(true);
         }
         else {
             setIsCurrentCodeCompiled(false); 
             console.log("Compilation errors: ", errors);
         }
-
         if (editorRef.current) {
            monaco.editor.setModelMarkers(editorRef.current.getModel(), "owner", errors.map(
                 error => ({
@@ -257,14 +111,6 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
                     endColumn: error.endCol,
                 })
            )) 
-        }
-    }
-
-    async function runCode() {
-        if (isCurrentCodeCompiled && !areWeCurrentlyPlayingBack) {
-            updateAudio();
-            const audioStartTime = await mmRuntime.current.audioRuntime.beginNewPlayback();
-            mmRuntime.current.animationRuntime.initiateAnimation(editorRef.current, document, currentColorMap.current, audioStartTime);
         }
     }
 
