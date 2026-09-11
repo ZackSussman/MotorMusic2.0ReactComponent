@@ -46,7 +46,7 @@ function registerLanguageAndTheme(monaco) {
       { token: 'lcurly1.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
       { token: 'lcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
       { token: 'rcurly0.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
-      { token: 'rcurly1.MotorMusic', foreground: '6b90ff', fontStyle: 'bold' },
+      { token: 'rcurly1.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
       { token: 'rcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
       { token: 'named_symbol.MotorMusic', foreground: '#0075ff' },
       { token: 'lsqbracket.MotorMusic', foreground: '#b3ff00' },
@@ -54,7 +54,7 @@ function registerLanguageAndTheme(monaco) {
       { token: 'unrecognized.MotorMusic', foreground: '#ff005d' },
       { token: 'langle.MotorMusic', foreground: '#8080B0' },
       { token: 'rangle.MotorMusic', foreground: '#8080B0' },
-      { token: '', foreground: '#0075ff' } 
+      { token: '', foreground: '#ef0e0e' } 
     ]
   });
 
