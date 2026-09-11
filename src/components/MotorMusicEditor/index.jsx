@@ -176,7 +176,6 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
                 suggest: {enabled: false},
                 parameterHints: {enabled: false},
                 hover: {enabled: false},
-                readOnly: areWeCurrentlyPlayingBack,
                 ...(lineNumbers !== "off" ? {
                   lineNumbersMinChars: 3,
                   lineDecorationsWidth: 16,
@@ -239,7 +238,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
             )}
           </div>
           <button
-            disabled={!isCurrentCodeCompiled || areWeCurrentlyPlayingBack}
+            disabled={!isCurrentCodeCompiled}
             onClick={runCode}
             style={{
               backgroundColor: EDITOR_BACKGROUND_COLOR,
@@ -247,7 +246,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
               height: '100%',
               padding: '0 12px',
               fontSize: '18px',
-              cursor: (!isCurrentCodeCompiled || areWeCurrentlyPlayingBack) ? 'not-allowed' : 'pointer',
+              cursor: (!isCurrentCodeCompiled) ? 'not-allowed' : 'pointer',
               display: 'flex',
               outline: 'none',
               boxShadow: 'none',
@@ -256,7 +255,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
               borderRadius: 0
             }}
           >
-            <FaPlay style={{ color: (!isCurrentCodeCompiled || areWeCurrentlyPlayingBack) ? '#888' : '#fff', transform: `scale(${playButtonScale})` }} />
+            <FaPlay style={{ color: (!isCurrentCodeCompiled) ? '#888' : '#fff', transform: `scale(${playButtonScale})` }} />
           </button>
         </div>
         { !disableDSTPMInput && (
@@ -319,7 +318,6 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
               min={1}
               step="any"
               value={syllableTime}
-              disabled={areWeCurrentlyPlayingBack}
               onChange={e => {
                 const val = e.target.value;
                 // Allow empty string for editing
@@ -354,8 +352,8 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
                 appearance: 'textfield',
                 MozAppearance: 'textfield',
                 WebkitAppearance: 'none',
-                opacity: areWeCurrentlyPlayingBack ? 0.6 : 1,
-                cursor: areWeCurrentlyPlayingBack ? 'not-allowed' : 'auto',
+                opacity: 1,
+                cursor: 'auto',
               }}
               onFocus={e => e.target.style.border = '1.5px solid #00ffe0'}
             />
