@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 
 import MonacoEditor from "@monaco-editor/react";
 
-import { processVisual } from "motormusic-runtime";
+import { processVisual, MotorMusicTokensProvider } from "motormusic-runtime";
 
 import { FaPlay } from "react-icons/fa";
 
