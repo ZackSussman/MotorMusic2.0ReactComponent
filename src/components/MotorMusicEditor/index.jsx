@@ -239,7 +239,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
           </div>
           <button
             disabled={!isCurrentCodeCompiled}
-            onClick={runCode}
+            onClick={console.log("code was \"ran\"")}
             style={{
               backgroundColor: EDITOR_BACKGROUND_COLOR,
               border: 'none',
