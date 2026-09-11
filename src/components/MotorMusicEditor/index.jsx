@@ -255,7 +255,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
               borderRadius: 0
             }}
           >
-            <FaPlay style={{ color: (!isCurrentCodeCompiled) ? '#888' : '#fff', transform: `scale(${playButtonScale})` }} />
+            <FaPlay style={{ color: (!isCurrentCodeCompiled) ? '#888' : '#fff' }} />
           </button>
         </div>
         { !disableDSTPMInput && (
