@@ -55,7 +55,7 @@ function registerLanguageAndTheme(monaco) {
       { token: 'langle.MotorMusic', foreground: '#79b5fe' },
       { token: 'rangle.MotorMusic', foreground: '#79b5fe' },
       { token: 'quote.MotorMusic', foreground: '#b45bf8'},
-      { token: 'rightarrow.MotorMusic', foreground: '#b3ff00'}
+      { token: 'rightarrow.MotorMusic', foreground: '#b3ff00'},
       { token: '', foreground: '#ef0e0e' } 
     ]
   });
