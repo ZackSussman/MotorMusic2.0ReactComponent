@@ -6,7 +6,7 @@ import { processVisual } from "motormusic-runtime";
 
 import { FaPlay } from "react-icons/fa";
 
-const DEFAULT_CODE = `[MotorMusic -> [<"<Motormusic>" "<MM>"> -> MotorMusic]]`;
+const DEFAULT_CODE = `[MotorMusic -> [<"Motormusic" "MM> -> MotorMusic]]`;
 
 const EDITOR_BACKGROUND_COLOR = "#171617";
 
@@ -15,92 +15,57 @@ function registerLanguageAndTheme(monaco) {
         console.error("Monaco is undefined in registerLanguageAndTheme");
         return;
     }
+    monaco.languages.register({id: "MotorMusic"});
+    monaco.languages.setTokensProvider('MotorMusic', new MotorMusicTokensProvider());
+    
+    monaco.editor.defineTheme('MotorMusicTheme', {
+    base: 'vs',
+    inherit: false,
+    colors: {
+      "editor.background": EDITOR_BACKGROUND_COLOR,
+      "editor.lineHighlightBorder": '#424242',
+      "editorLineNumber.foreground": "#00ffe0",
+      "editorLineNumber.activeForeground": '#0bf098',
+      "editorCursor.foreground": "#c933ffa6",
+      "editor.selectionBackground": "#547a7a5c",
+      "editor.lineHighlightBackground": "#111111",
+      "editor.lineHighlightBorder": "#00000000",
+      "editorBracketHighlight.foreground1": "#1ca182",
+      "editorBracketHighlight.foreground2": "#6b90ff",
+      "editorBracketHighlight.foreground3": "#fe00ff",
+      "editorBracketHighlight.unexpectedBracket.foreground": "#ff0000"
+    },
+    rules: [
+      { token: 'lparen1.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'rparen1.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'lparen2.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
+      { token: 'rparen2.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
+      { token: 'lparen0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'rparen0.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'lcurly0.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'lcurly1.MotorMusic', foreground: '#6b90ff', fontStyle: 'bold' },
+      { token: 'lcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'rcurly0.MotorMusic', foreground: '#1ca182', fontStyle: 'bold' },
+      { token: 'rcurly1.MotorMusic', foreground: '6b90ff', fontStyle: 'bold' },
+      { token: 'rcurly2.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold' },
+      { token: 'named_symbol.MotorMusic', foreground: '#0075ff' },
+      { token: 'lsqbracket.MotorMusic', foreground: '#b3ff00' },
+      { token: 'rsqbracket.MotorMusic', foreground: '#b3ff00' },
+      { token: 'unrecognized.MotorMusic', foreground: '#ff005d' },
+      { token: 'langle.MotorMusic', foreground: '#8080B0' },
+      { token: 'rangle.MotorMusic', foreground: '#8080B0' },
+      { token: '', foreground: '#0075ff' } 
+    ]
+  });
 
-    // Register the language only if it hasn't already been registered.
-    const alreadyRegistered = monaco.languages
-        .getLanguages()
-        .some(language => language.id === "MotorMusic");
-
-    if (!alreadyRegistered) {
-        monaco.languages.register({
-            id: "MotorMusic"
-        });
-    }
-
-    // ------------------------------------------------------------
-    // TEMPORARY TEST TOKEN PROVIDER
-    //
-    // Every token on the line is given the scope "test".
-    // If this works, the entire line should be red.
-    // ------------------------------------------------------------
-    monaco.languages.setTokensProvider("MotorMusic", {
-        getInitialState: () => null,
-
-        tokenize: (line, state) => {
-            return {
-                endState: state,
-                tokens: [
-                    {
-                        startIndex: 0,
-                        scopes: "test"
-                    }
-                ]
-            };
-        }
-    });
-
-    console.log("Registered temporary MotorMusic test token provider.");
-
-    monaco.editor.defineTheme("MotorMusicTheme", {
-        base: "vs",
-        inherit: false,
-
-        colors: {
-            "editor.background": EDITOR_BACKGROUND_COLOR,
-
-            "editor.lineHighlightBorder": "#424242",
-
-            "editorLineNumber.foreground": "#00ffe0",
-            "editorLineNumber.activeForeground": "#0bf098",
-
-            "editorCursor.foreground": "#c933ffa6",
-
-            "editor.selectionBackground": "#547a7a5c",
-
-            "editor.lineHighlightBackground": "#111111",
-            "editor.lineHighlightBorder": "#00000000",
-
-            "editorBracketHighlight.foreground1": "#1ca182",
-            "editorBracketHighlight.foreground2": "#6b90ff",
-            "editorBracketHighlight.foreground3": "#fe00ff",
-            "editorBracketHighlight.unexpectedBracket.foreground": "#ff0000"
-        },
-
-        rules: [
-            // TEMPORARY TEST RULE
-            {
-                token: "test", foreground: "FF0000"
-            }
-        ]
-    });
-
-    monaco.editor.setTheme("MotorMusicTheme");
-
-    monaco.languages.setLanguageConfiguration("MotorMusic", {
-        autoClosingPairs: [
-            {
-                open: "(",
-                close: ")"
-            }
-        ],
-
-        surroundingPairs: [
-            {
-                open: "(",
-                close: ")"
-            }
-        ]
-    });
+  monaco.languages.setLanguageConfiguration('MotorMusic', {
+    autoClosingPairs: [
+      { open: '(', close: ' )' },
+    ],
+    surroundingPairs: [
+      { open: '(', close: ')' },
+    ]
+  });
 
     console.log(
         "MotorMusic language:",
