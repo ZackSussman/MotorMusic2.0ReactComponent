@@ -1,8 +1,11 @@
 import React, {useState, useEffect, useRef} from "react";
 import MonacoEditor, {loader} from "@monaco-editor/react";
-import {initializeMotorMusicRuntime, DEFAULT_SYLLABLE_TIME} from  "motormusic-runtime";
+import {processVisual} from  "motormusic-runtime";
 import {MotorMusicTokensProvider} from "motormusic-runtime";
 import {FaPlay} from 'react-icons/fa';
+
+
+DEFAULT_SYLlABLE_TIME = 200;
 
 const DEFAULT_CODE = `(
     (
@@ -102,7 +105,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
     const [isEditorReady, setIsEditorReady] = useState(false);
     const [hasHorizontalOverflow, setHasHorizontalOverflow] = useState(false);
 
-     const mmRuntime = useRef(initializeMotorMusicRuntime(() => {setAreWeCurrentlyPlayingBack(true); setClientPlaybackState(true);}, () => {setAreWeCurrentlyPlayingBack(false); setClientPlaybackState(false);}));
+    //const mmRuntime = useRef(initializeMotorMusicRuntime(() => {setAreWeCurrentlyPlayingBack(true); setClientPlaybackState(true);}, () => {setAreWeCurrentlyPlayingBack(false); setClientPlaybackState(false);}));
 
 
     useEffect(() => {
@@ -111,8 +114,8 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
         }).catch(error => {
           console.log("failed to initialize monaco: ", error);
         });
-        mmRuntime.current.audioRuntime.initializeAudioContext();
-        mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
+        //mmRuntime.current.audioRuntime.initializeAudioContext();
+        //mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
      }, []);
 
 
@@ -121,7 +124,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
         console.log("syllableTime changed: ", syllableTime);
         onSyllableTimeChange(syllableTime);
         if (isEditorReady) {
-            mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
+            //mmRuntime.current.animationRuntime.setSyllableTime(syllableTime);
             consumeText(code);
         }
     }, [syllableTime, isEditorReady]);
@@ -135,7 +138,7 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
         if (audioData === null) {
             // Audio was removed, revert to default computed audio
             if (runtimeComputedAudio.current) {
-                mmRuntime.current.audioRuntime.setComputedAudio(runtimeComputedAudio.current);
+                //mmRuntime.current.audioRuntime.setComputedAudio(runtimeComputedAudio.current);
             }
         } else {
             // Audio was uploaded, process it
@@ -212,9 +215,10 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
         }
         
         // Set the cropped audio in the runtime
-        mmRuntime.current.audioRuntime.setComputedAudio(croppedSamples);
+        //mmRuntime.current.audioRuntime.setComputedAudio(croppedSamples);
     }
     
+    /*
     function updateAudio() {
       const [computedAudio, errors] = mmRuntime.current.globalRuntime.processAudio(code);
       if (errors.length === 0 && computedAudio) {
@@ -229,16 +233,13 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
 
       }
 
-    }
+    }*/
 
     function consumeText(newCode) {
         onCodeChange(newCode); //client's callback
         setCode(newCode);
-        const [colorMap, getAnimationInfoFunction, errors] = mmRuntime.current.globalRuntime.processVisual(newCode);
-        if (errors.length === 0 && getAnimationInfoFunction && colorMap) {
-            mmRuntime.current.animationRuntime.setGetAnimationInfoFunction(getAnimationInfoFunction);
-            mmRuntime.current.animationRuntime.repaintColors(editorRef.current, document, colorMap);
-            currentColorMap.current = colorMap;
+        const errors = processVisual(newCode);
+        if (errors.length === 0) {
             setIsCurrentCodeCompiled(true);
         }
         else {
@@ -261,11 +262,11 @@ function MotorMusicEditor({fontSize = 18, height = '100px', initialCode = DEFAUL
     }
 
     async function runCode() {
-        if (isCurrentCodeCompiled && !areWeCurrentlyPlayingBack) {
+        /*if (isCurrentCodeCompiled && !areWeCurrentlyPlayingBack) {
             updateAudio();
             const audioStartTime = await mmRuntime.current.audioRuntime.beginNewPlayback();
             mmRuntime.current.animationRuntime.initiateAnimation(editorRef.current, document, currentColorMap.current, audioStartTime);
-        }
+        }*/
     }
 
     return (
