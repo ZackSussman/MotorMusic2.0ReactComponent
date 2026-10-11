@@ -1,9 +1,6 @@
-import React, { useState, useRef } from "react";
-
-import MonacoEditor from "@monaco-editor/react";
-
+import React, { useState, useEffect, useRef } from "react";
+import MonacoEditor, { loader } from "@monaco-editor/react";
 import { processVisual, MotorMusicTokensProvider } from "motormusic-runtime";
-
 import { FaPlay } from "react-icons/fa";
 
 const DEFAULT_CODE = 
@@ -61,7 +58,7 @@ function registerLanguageAndTheme(monaco) {
       { token: 'rangle.MotorMusic', foreground: '#79b5fe' },
       { token: 'quote.MotorMusic', foreground: '#b45bf8'},
       { token: 'rightarrow.MotorMusic', foreground: '#b3ff00'},
-      { token: 'number.MotorMusic', foreground: 'fe00ff', fontSTyle: 'bold'},
+      { token: 'number.MotorMusic', foreground: '#fe00ff', fontStyle: 'bold'},
       { token: '', foreground: '#ef0e0e' } 
     ]
   });
@@ -74,15 +71,7 @@ function registerLanguageAndTheme(monaco) {
       { open: '(', close: ')' },
     ]
   });
-
-    console.log(
-        "MotorMusic language:",
-        monaco.languages
-            .getLanguages()
-            .find(language => language.id === "MotorMusic")
-    );
 }
-
 
 // width used to default to 600px
 function MotorMusicEditor({
@@ -93,16 +82,21 @@ function MotorMusicEditor({
     lineNumbers = "on"
 }) {
     const editorRef = useRef(null);
-    const monacoRef = useRef(null);
 
     const [code, setCode] = useState(initialCode);
     const [isCurrentCodeCompiled, setIsCurrentCodeCompiled] = useState(false);
-    const [isEditorReady, setIsEditorReady] = useState(false);
     const [hasHorizontalOverflow, setHasHorizontalOverflow] = useState(false);
 
-    function consumeText(newCode) {
-        onCodeChange(newCode);
+    useEffect(() => {
+        loader.init().then(monaco => {
+            registerLanguageAndTheme(monaco);
+        }).catch(error => {
+            console.log("failed to initialize monaco: ", error);
+        });
+    }, []);
 
+    function consumeText(newCode) {
+        onCodeChange(newCode); // client's callback
         setCode(newCode);
 
         const errors = processVisual(newCode);
@@ -112,39 +106,19 @@ function MotorMusicEditor({
         } else {
             setIsCurrentCodeCompiled(false);
             console.log("Compilation errors: ", errors);
-            if (editorRef.current) {
+        }
+
+        if (editorRef.current) {
             monaco.editor.setModelMarkers(editorRef.current.getModel(), "owner", errors.map(
-                    error => ({
-                        message: error.message,
-                        severity: monaco.MarkerSeverity.Error,
-                        startLineNumber: error.startLine,
-                        startColumn: error.startCol,
-                        endLineNumber: error.endLine,
-                        endColumn: error.endCol,
-                    })
-           )) 
-        }
-        }
-        
-
-        // Use the Monaco instance stored in the ref.
-        if (editorRef.current && monacoRef.current) {
-            const model = editorRef.current.getModel();
-
-            if (model) {
-                monacoRef.current.editor.setModelMarkers(
-                    model,
-                    "owner",
-                    errors.map(error => ({
-                        message: error.message,
-                        severity: monacoRef.current.MarkerSeverity.Error,
-                        startLineNumber: error.startLine,
-                        startColumn: error.startCol,
-                        endLineNumber: error.endLine,
-                        endColumn: error.endCol
-                    }))
-                );
-            }
+                error => ({
+                    message: error.message,
+                    severity: monaco.MarkerSeverity.Error,
+                    startLineNumber: error.startLine,
+                    startColumn: error.startCol,
+                    endLineNumber: error.endLine,
+                    endColumn: error.endCol,
+                })
+            ));
         }
     }
 
@@ -199,144 +173,67 @@ function MotorMusicEditor({
                         height={height}
                         options={{
                             overviewRulerLanes: 0,
-
                             automaticLayout: true,
-
                             fontSize: fontSize,
-
-                            minimap: {
-                                enabled: false
-                            },
-
+                            minimap: { enabled: false },
                             matchBrackets: "near",
-
-                            bracketPairColorization: {
-                                enabled: false
-                            },
-
+                            bracketPairColorization: { enabled: false },
                             scrollBeyondLastLine: false,
-
                             smoothScrolling: false,
-
                             glyphMargin: false,
-
                             folding: false,
-
                             lineNumbers: lineNumbers,
-
                             renderLineHighlight: "none",
-
-                            stickyScroll: {
-                                enabled: false
-                            },
-
+                            stickyScroll: { enabled: false },
                             accessibilitySupport: "off",
-
                             scrollbar: {
                                 vertical: "auto",
                                 horizontal: "hidden",
                                 alwaysConsumeMouseWheel: false
                             },
-
                             quickSuggestions: false,
-
-                            suggest: {
-                                enabled: false
-                            },
-
-                            parameterHints: {
-                                enabled: false
-                            },
-
-                            hover: {
-                                enabled: false
-                            },
-
+                            suggest: { enabled: false },
+                            parameterHints: { enabled: false },
+                            hover: { enabled: false },
                             ...(lineNumbers !== "off"
                                 ? {
                                       lineNumbersMinChars: 3,
-
                                       lineDecorationsWidth: 16,
-
-                                      padding: {
-                                          top: 0,
-                                          bottom: 0,
-                                          left: 8,
-                                          right: 0
-                                      }
+                                      padding: { top: 0, bottom: 0, left: 8, right: 0 }
                                   }
                                 : {
-                                      padding: {
-                                          top: 0,
-                                          bottom: 0,
-                                          left: 0,
-                                          right: 8
-                                      }
+                                      padding: { top: 0, bottom: 0, left: 0, right: 8 }
                                   })
                         }}
-                        beforeMount={registerLanguageAndTheme}
-                        onMount={(editor, monaco) => {
+                        onMount={(editor) => {
                             editorRef.current = editor;
-                            monacoRef.current = monaco;
-
-                            // Register the language, token provider, and theme
-                            // using the exact Monaco instance used by this editor.
-                            //registerLanguageAndTheme(monaco);
-
-                            // Make sure the existing model uses the newly
-                            // registered MotorMusic language.
-                            const model = editor.getModel();
-
-                            if (model) {
-                                monaco.editor.setModelLanguage(
-                                    model,
-                                    "MotorMusic"
-                                );
-                            }
-
-                            setIsEditorReady(true);
-
                             consumeText(code);
 
                             if (lineNumbers === "off") {
-                                editor.addCommand(
-                                    monaco.KeyCode.Enter,
-                                    () => {
-                                        // Do nothing on Enter key.
-                                        // Disables new line.
-                                    }
-                                );
+                                editor.addCommand(monaco.KeyCode.Enter, () => {
+                                    // Do nothing on Enter key — disables new line
+                                });
                             }
 
                             // Check for horizontal overflow
                             const checkOverflow = () => {
                                 const domNode = editor.getDomNode();
-
                                 if (domNode) {
-                                    const viewLines =
-                                        domNode.querySelector(".view-lines");
-
+                                    const viewLines = domNode.querySelector(".view-lines");
                                     if (viewLines) {
-                                        const hasOverflow =
-                                            viewLines.scrollWidth >
-                                            viewLines.clientWidth;
-
                                         setHasHorizontalOverflow(
-                                            hasOverflow
+                                            viewLines.scrollWidth > viewLines.clientWidth
                                         );
                                     }
                                 }
                             };
 
-                            // Check on mount
+                            // Check on mount and when content changes
                             checkOverflow();
-
-                            // Check when content changes
                             editor.onDidChangeModelContent(() => {
                                 setTimeout(checkOverflow, 100);
                             });
                         }}
-
                         onChange={consumeText}
                     />
 
@@ -366,9 +263,7 @@ function MotorMusicEditor({
                         height: "100%",
                         padding: "0 12px",
                         fontSize: "18px",
-                        cursor: !isCurrentCodeCompiled
-                            ? "not-allowed"
-                            : "pointer",
+                        cursor: !isCurrentCodeCompiled ? "not-allowed" : "pointer",
                         display: "flex",
                         outline: "none",
                         boxShadow: "none",
@@ -377,13 +272,7 @@ function MotorMusicEditor({
                         borderRadius: 0
                     }}
                 >
-                    <FaPlay
-                        style={{
-                            color: !isCurrentCodeCompiled
-                                ? "#888"
-                                : "#fff"
-                        }}
-                    />
+                    <FaPlay style={{ color: !isCurrentCodeCompiled ? "#888" : "#fff" }} />
                 </button>
             </div>
         </div>
