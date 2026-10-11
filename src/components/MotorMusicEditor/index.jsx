@@ -5,7 +5,7 @@ import {MotorMusicTokensProvider} from "motormusic-runtime";
 import {FaPlay} from 'react-icons/fa';
 
 
-DEFAULT_SYLlABLE_TIME = 200;
+const DEFAULT_SYLlABLE_TIME = 200;
 
 const DEFAULT_CODE = `(
     (
