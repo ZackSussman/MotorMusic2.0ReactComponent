@@ -56,6 +56,7 @@ function registerLanguageAndTheme(monaco) {
       { token: 'rangle.MotorMusic', foreground: '#79b5fe' },
       { token: 'quote.MotorMusic', foreground: '#b45bf8'},
       { token: 'rightarrow.MotorMusic', foreground: '#b3ff00'},
+      { token: 'number.MotorMusic', foreground: 'fe00ff', fontSTyle: 'bold'},
       { token: '', foreground: '#ef0e0e' } 
     ]
   });
@@ -106,7 +107,20 @@ function MotorMusicEditor({
         } else {
             setIsCurrentCodeCompiled(false);
             console.log("Compilation errors: ", errors);
+            if (editorRef.current) {
+            monaco.editor.setModelMarkers(editorRef.current.getModel(), "owner", errors.map(
+                    error => ({
+                        message: error.message,
+                        severity: monaco.MarkerSeverity.Error,
+                        startLineNumber: error.startLine,
+                        startColumn: error.startCol,
+                        endLineNumber: error.endLine,
+                        endColumn: error.endCol,
+                    })
+           )) 
         }
+        }
+        
 
         // Use the Monaco instance stored in the ref.
         if (editorRef.current && monacoRef.current) {
