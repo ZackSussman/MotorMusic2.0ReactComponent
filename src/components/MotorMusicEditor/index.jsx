@@ -6,7 +6,11 @@ import { processVisual, MotorMusicTokensProvider } from "motormusic-runtime";
 
 import { FaPlay } from "react-icons/fa";
 
-const DEFAULT_CODE = `[MotorMusic -> [<"Motormusic" "MM> -> MotorMusic]]`;
+const DEFAULT_CODE = `8{2:a 2:a 2:a{2:b} 2:a{2:b}} 
+                      8{4:a{4:b} 1:c 2:c 2:c} 
+                      7{1:c 1:c 2:d 2:d}
+                      8{2:d{2:e} 2:d{2:e} 4:d{4:e}}
+                      7{1:f 2:f 2:f 1:f 1:f}`;
 
 const EDITOR_BACKGROUND_COLOR = "#171617";
 
